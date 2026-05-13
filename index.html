@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#050608" />
+    <meta name="color-scheme" content="dark" />
+    <title>Kener · Kiosco</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <!-- Marca Kener: K estilizada + texto (tono corporativo #005b82) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 72" role="img" aria-label="Kener">
+              <rect x="4" y="8" width="14" height="52" rx="2" fill="#005b82" />
+              <path d="M32 60 L32 8 L52 8 L38 34 L54 60 L32 60 Z" fill="#005b82" opacity="0.95" />
+              <path d="M44 8 L68 8 L52 36 L70 60 L46 60 L32 34 Z" fill="#005b82" />
+              <text x="82" y="48" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="28" font-weight="700" fill="#005b82" letter-spacing="0.12em">KENER</text>
+            </svg>
+          </div>
+          <div class="brand-copy">
+            <h1>Kiosco directivos</h1>
+            <p>Innovación y calidad alineados con <a href="https://www.kener.com.mx/" target="_blank" rel="noopener noreferrer">kener.com.mx</a></p>
+          </div>
+        </div>
+        <span class="pill" id="pill-context" hidden>Extensión en URL</span>
+      </header>
+
+      <main>
+        <section id="screen-profile" class="panel" hidden>
+          <div class="panel-head">
+            <h2>Tu perfil</h2>
+            <p>Datos mostrados según el número en la ruta del sitio.</p>
+          </div>
+          <div class="profile-grid">
+            <div class="stat">
+              <label>Nombre</label>
+              <div class="value" id="field-name">—</div>
+            </div>
+            <div class="stat">
+              <label>Extensión</label>
+              <div class="value" id="field-extension">—</div>
+            </div>
+            <div class="stat">
+              <label>Puesto</label>
+              <div class="value" id="field-title">—</div>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-top: 1.75rem">Accesos</h3>
+          <div class="tiles">
+            <!-- Android: intent abre la app instalada (Fully Kiosk / Chrome según dispositivo) -->
+            <a
+              class="tile"
+              href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.microsoft.office.outlook;S.browser_fallback_url=https%3A%2F%2Foutlook.office.com%2Fmail%2F;end"
+              id="link-outlook"
+            >
+              <div class="tile-icon apps" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="#3ba3da" stroke-width="1.5" />
+                  <path d="M3 9h18" stroke="#3ba3da" stroke-width="1.5" />
+                  <path d="M8 13h8M8 16h5" stroke="#94c9e8" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span>Outlook</span>
+              <small>App Microsoft</small>
+            </a>
+
+            <a
+              class="tile"
+              href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.microsoft.teams;S.browser_fallback_url=https%3A%2F%2Fteams.microsoft.com%2F;end"
+              id="link-teams"
+            >
+              <div class="tile-icon apps" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="9" cy="9" r="4" fill="#7b83eb" />
+                  <circle cx="15" cy="9" r="4" fill="#6264a7" />
+                  <circle cx="9" cy="15" r="4" fill="#6264a7" />
+                  <circle cx="15" cy="15" r="4" fill="#464eb8" />
+                </svg>
+              </div>
+              <span>Microsoft Teams</span>
+              <small>App Microsoft</small>
+            </a>
+
+            <a class="tile" href="http://201.151.127.106:8085/login" target="_self" rel="noopener noreferrer">
+              <div class="tile-icon pages" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    stroke="#7fd0f0"
+                    stroke-width="1.5"
+                  />
+                  <path d="M9 8h6M9 12h6M9 16h4" stroke="#b8e8ff" stroke-width="1.3" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span>Pages Kener</span>
+              <small>Inicio de sesión interno</small>
+            </a>
+
+            <a class="tile" href="https://kener-proveedores.com.mx/usuario/login" target="_self" rel="noopener noreferrer">
+              <div class="tile-icon proveedores" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 17h2l1-6M4 17h16M6 11h12l1 6M8 11V8a4 4 0 118 0v3"
+                    stroke="#9fdcff"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="9" cy="20" r="1.5" fill="#9fdcff" />
+                  <circle cx="15" cy="20" r="1.5" fill="#9fdcff" />
+                </svg>
+              </div>
+              <span>Portal proveedores</span>
+              <small>kener-proveedores.com.mx</small>
+            </a>
+          </div>
+        </section>
+
+        <noscript>
+          <section class="panel unknown">
+            <h2>JavaScript desactivado</h2>
+            <p>Activa JavaScript para ver tu perfil según la extensión en la URL.</p>
+          </section>
+        </noscript>
+
+        <section id="screen-unknown" class="panel unknown" hidden>
+          <h2>Indica la extensión en la URL</h2>
+          <p>
+            Este kiosco muestra el perfil según el número después de la barra. Ejemplo para pruebas:
+          </p>
+          <code class="hint">…vercel.app/1135</code>
+          <p style="margin-top: 1.25rem; font-size: 0.85rem">
+            Si la extensión no está en la lista interna, contacta a desarrollo para darla de alta en
+            <code style="color: var(--kener-teal-bright)">assets/users.js</code>.
+          </p>
+        </section>
+      </main>
+
+      <p class="footer-note">
+        Laboratorios Kener · Uso en dispositivos corporativos con
+        <a href="https://www.fully-kiosk.com/" target="_blank" rel="noopener noreferrer">Fully Kiosk Browser</a>.
+        Los accesos a Outlook y Teams usan intents de Android; si no abren, revisa que la app esté instalada o usa la API JS de Fully.
+      </p>
+    </div>
+
+    <script src="/assets/users.js"></script>
+    <script src="/assets/app.js"></script>
+    <script>
+      (function () {
+        var path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+        var pill = document.getElementById("pill-context");
+        if (pill && /^[0-9]+$/.test(path.split("/")[0] || "")) {
+          pill.hidden = false;
+        }
+      })();
+    </script>
+  </body>
+</html>
