@@ -1,13 +1,25 @@
 (function () {
   var users = window.KENER_KIOSK_USERS || {};
-  var TEAMS_PKG = "com.microsoft.teams";
   var TEAMS_WEB = "https://teams.cloud.microsoft/";
-  var TEAMS_INTENT =
-    "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" +
-    TEAMS_PKG +
-    ";end";
   var LS_EXT = "kener-ext";
   var LS_THEME = "kener-theme";
+
+  /** Intents launcher (formato # como en la documentación de Fully). */
+  function teamsIntentForPackage(pkg) {
+    return (
+      "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" +
+      pkg +
+      ";end"
+    );
+  }
+
+  function teamsIntentAlt(pkg) {
+    return (
+      "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" +
+      pkg +
+      ";end"
+    );
+  }
 
   function normalizeExt(pathname) {
     var p = (pathname || "").replace(/^\/+|\/+$/g, "");
@@ -51,20 +63,125 @@
     window.location.assign(url);
   }
 
+  function getLaunch() {
+    return window.KENER_LAUNCH || {};
+  }
+
+  function getCurrentUser() {
+    var ext = normalizeExt(window.location.pathname) || getSavedExt();
+    return ext ? users[ext] : null;
+  }
+
+  function getTeamsPackages() {
+    var L = getLaunch();
+    var list = Array.isArray(L.teamsPackages) && L.teamsPackages.length ? L.teamsPackages.slice() : ["com.microsoft.teams"];
+    var u = getCurrentUser();
+    if (u && u.teamsPackage && list.indexOf(u.teamsPackage) === -1) {
+      list.unshift(String(u.teamsPackage));
+    }
+    return list;
+  }
+
+  function getTeamsDeepLinks() {
+    var L = getLaunch();
+    return Array.isArray(L.teamsDeepLinks) && L.teamsDeepLinks.length
+      ? L.teamsDeepLinks.slice()
+      : ["msteams://", "ms-teams://"];
+  }
+
+  function tryFullyStartIntent(url) {
+    if (!window.fully || typeof fully.startIntent !== "function") return false;
+    try {
+      fully.startIntent(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function tryFullyStartApplication(pkg) {
+    if (!window.fully || typeof fully.startApplication !== "function") return false;
+    try {
+      fully.startApplication(pkg);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function openTeamsApp(ev) {
     if (ev) ev.preventDefault();
-    if (window.fully && typeof fully.startApplication === "function") {
-      try {
-        fully.startApplication(TEAMS_PKG);
-        return;
-      } catch (e) {}
+    var pkgs = getTeamsPackages();
+    var i;
+    for (i = 0; i < pkgs.length; i++) {
+      if (tryFullyStartIntent(teamsIntentForPackage(pkgs[i]))) return;
+      if (tryFullyStartIntent(teamsIntentAlt(pkgs[i]))) return;
     }
-    window.location.href = TEAMS_INTENT;
+    for (i = 0; i < pkgs.length; i++) {
+      if (tryFullyStartApplication(pkgs[i])) return;
+    }
+    var deep = getTeamsDeepLinks();
+    for (i = 0; i < deep.length; i++) {
+      if (tryFullyStartIntent(deep[i])) return;
+    }
+    for (i = 0; i < deep.length; i++) {
+      try {
+        window.location.href = deep[i];
+        return;
+      } catch (e2) {}
+    }
+    if (pkgs.length) {
+      try {
+        window.location.href = teamsIntentForPackage(pkgs[0]);
+        return;
+      } catch (e3) {}
+    }
+    window.location.assign(TEAMS_WEB);
   }
 
   function openTeamsWeb(ev) {
     if (ev) ev.preventDefault();
     window.location.assign(TEAMS_WEB);
+  }
+
+  function dialIntentDial(telUri) {
+    return "intent:#Intent;action=android.intent.action.DIAL;data=" + encodeURIComponent(telUri) + ";end";
+  }
+
+  function dialIntentView(telUri) {
+    return "intent:#Intent;action=android.intent.action.VIEW;data=" + encodeURIComponent(telUri) + ";end";
+  }
+
+  function openDial(ev) {
+    if (ev) ev.preventDefault();
+    var btn = $("btn-tel");
+    var telUri = (btn && btn.getAttribute("data-tel")) || "";
+    if (!telUri || telUri === "tel:") return;
+
+    var L = getLaunch();
+    var dialPkgs = [];
+    var one = L.dialerPackage ? String(L.dialerPackage).trim() : "";
+    if (one) dialPkgs.push(one);
+    var many = L.dialerPackages;
+    if (Array.isArray(many)) {
+      many.forEach(function (p) {
+        var q = p ? String(p).trim() : "";
+        if (q && dialPkgs.indexOf(q) === -1) dialPkgs.push(q);
+      });
+    }
+
+    if (tryFullyStartIntent(dialIntentDial(telUri))) return;
+    if (tryFullyStartIntent(dialIntentView(telUri))) return;
+    if (tryFullyStartIntent("intent://#Intent;action=android.intent.action.DIAL;data=" + encodeURIComponent(telUri) + ";end"))
+      return;
+    var j;
+    for (j = 0; j < dialPkgs.length; j++) {
+      if (tryFullyStartApplication(dialPkgs[j])) return;
+    }
+
+    try {
+      window.location.href = telUri;
+    } catch (e) {}
   }
 
   function applyTheme(theme) {
@@ -105,18 +222,15 @@
   }
 
   function setTelTile(u) {
-    var a = $("tile-tel");
-    if (!a) return;
-    var href = (u && u.telUri) || (u && u.extension ? "tel:" + String(u.extension).replace(/\s/g, "") : "tel:");
-    a.setAttribute("href", href);
-    a.setAttribute("aria-disabled", href === "tel:" ? "true" : "false");
-    if (href === "tel:") {
-      a.style.pointerEvents = "none";
-      a.style.opacity = "0.45";
-    } else {
-      a.style.pointerEvents = "";
-      a.style.opacity = "";
-    }
+    var btn = $("btn-tel");
+    if (!btn) return;
+    var telUri =
+      (u && u.telUri) || (u && u.extension ? "tel:" + String(u.extension).replace(/\s/g, "") : "");
+    btn.setAttribute("data-tel", telUri);
+    var ok = Boolean(telUri && telUri !== "tel:");
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? "" : "0.45";
+    btn.style.pointerEvents = ok ? "" : "none";
   }
 
   function showChrome() {
@@ -178,6 +292,9 @@
     if (teamsBtn) teamsBtn.addEventListener("click", openTeamsApp);
     var teamsWeb = $("btn-teams-web");
     if (teamsWeb) teamsWeb.addEventListener("click", openTeamsWeb);
+
+    var telBtn = $("btn-tel");
+    if (telBtn) telBtn.addEventListener("click", openDial);
 
     var home = $("btn-kiosk-home");
     if (home) home.addEventListener("click", goKioskMenu);
