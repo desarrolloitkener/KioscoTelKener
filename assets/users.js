@@ -13,4 +13,11 @@ window.KENER_KIOSK_USERS = {
     // telUri: "tel:+525555551135",
     // teamsPackage: "com.microsoft.teams",
   },
+  "1136": {
+    name: "Jaime Sanchez Ramirez",
+    extension: "1136",
+    title: "Director de Tecnologías de la Información",
+    // telUri: "tel:+525555551135",
+    // teamsPackage: "com.microsoft.teams",
+  },
 };
